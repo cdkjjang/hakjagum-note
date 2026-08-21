@@ -22,8 +22,13 @@ export const metadata: Metadata = {
     card: "summary_large_image",
   },
   // 구글은 lifebanjang.com 도메인 속성으로 자동 커버되므로 네이버만 등록한다.
-  // 네이버 소유확인 코드는 hakjagum.lifebanjang.com 전용으로 발급받아야 한다 —
-  // 다른 노트의 코드를 복사해 쓰면 소유확인이 실패한다. 배포 후 발급받아 채울 것.
+  // 아래 값은 hakjagum.lifebanjang.com 전용으로 발급받은 것 — 다른 노트의 코드를
+  // 복사해 쓰면 소유확인이 실패한다.
+  verification: {
+    other: {
+      "naver-site-verification": "c565da23c1bc169667dfe47f40e16939eab29049",
+    },
+  },
 };
 
 export default function RootLayout({
