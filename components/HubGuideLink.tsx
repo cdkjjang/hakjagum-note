@@ -1,12 +1,15 @@
 // 생활반장 허브의 상황별 가이드로 연결한다.
-// 이 노트 하나로 끝나지 않는 상황(대학 진학 전체 흐름)을 순서대로 정리한 글이라,
+// 이 노트 하나로 끝나지 않는 상황을 순서대로 정리한 글이라,
 // 등록금을 막 알아보기 시작한 사람에게 자연스러운 다음 단계가 된다.
 // 노트가 허브로 보내기만 하고 못 받는 단방향 구조를 메우는 자리이기도 하다.
+//
+// 부모 관점의 university-entrance에서 학생 본인 관점의 student-money로 바꿨다.
+// 이 노트를 직접 찾아오는 쪽은 등록금을 스스로 감당하는 사람이 더 많다.
 
 const HUB = {
-  href: "https://lifebanjang.com/guide/university-entrance",
-  title: "자녀 대학 보낼 때 — 등록금보다 주거비가 문제입니다",
-  desc: "국가장학금 신청 시기·기숙사와 자취 비용·학자금대출까지 순서대로",
+  href: "https://lifebanjang.com/guide/student-money",
+  title: "대학 다니는 돈을 스스로 감당할 때 — 등록금·주거비·알바가 서로 물립니다",
+  desc: "지원구간은 가구 소득으로 정해지고, 알바를 늘리면 그 구간이 움직입니다",
 };
 
 export default function HubGuideLink() {
