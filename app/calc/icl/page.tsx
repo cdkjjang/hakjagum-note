@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import CalcGuides from "@/components/CalcGuides";
 import Link from "next/link";
 import IclCalculator from "@/components/IclCalculator";
 import AdSlot from "@/components/AdSlot";
@@ -315,6 +316,7 @@ export default function IclPage() {
           </li>
         </ul>
       </section>
+      <CalcGuides calcHref="/calc/icl" />
     </div>
   );
 }
