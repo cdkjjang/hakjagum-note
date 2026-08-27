@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import CalcGuides from "@/components/CalcGuides";
+import RelatedTools from "@/components/RelatedTools";
 import Link from "next/link";
 import ScholarshipCalculator from "@/components/ScholarshipCalculator";
 import AdSlot from "@/components/AdSlot";
@@ -356,6 +357,7 @@ export default function ScholarshipPage() {
         </ul>
       </section>
       <CalcGuides calcHref="/calc/scholarship" />
+      <RelatedTools calc="/calc/scholarship" />
     </div>
   );
 }

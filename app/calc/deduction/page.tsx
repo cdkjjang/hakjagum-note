@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import CalcGuides from "@/components/CalcGuides";
+import RelatedTools from "@/components/RelatedTools";
 import Link from "next/link";
 import DeductionCalculator from "@/components/DeductionCalculator";
 import AdSlot from "@/components/AdSlot";
@@ -329,6 +330,7 @@ export default function DeductionPage() {
         </ul>
       </section>
       <CalcGuides calcHref="/calc/deduction" />
+      <RelatedTools calc="/calc/deduction" />
     </div>
   );
 }
