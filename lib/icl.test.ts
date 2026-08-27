@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  EARNED_INCOME_DEDUCTION_CAP,
   LOAN_RATE,
   REPAY_RATE,
   THRESHOLD_INCOME,
@@ -10,6 +11,26 @@ import {
   salaryFromIncome,
   type IclInput,
 } from "./icl";
+
+// 근로소득공제 한도는 급여노트·세금노트와 같은 값이어야 한다.
+// 예전에 이 파일에만 한도가 없어 고소득 구간에서 셋이 다른 답을 냈다.
+describe("근로소득공제 한도 (소득세법 제47조 제1항 단서)", () => {
+  it("한도는 2,000만원", () => {
+    expect(EARNED_INCOME_DEDUCTION_CAP).toBe(20_000_000);
+  });
+
+  it("총급여 3억 6,250만원에서 한도에 닿고 그 위로는 고정된다", () => {
+    expect(earnedIncomeDeduction(300_000_000)).toBe(18_750_000); // 한도 미달
+    expect(earnedIncomeDeduction(362_500_000)).toBe(20_000_000); // 경계
+    expect(earnedIncomeDeduction(500_000_000)).toBe(20_000_000); // 고정
+  });
+
+  it("한도 위에서도 총급여 ↔ 소득금액 왕복이 맞는다", () => {
+    for (const gross of [300_000_000, 362_500_000, 400_000_000, 500_000_000]) {
+      expect(salaryFromIncome(incomeFromSalary(gross))).toBe(gross);
+    }
+  });
+});
 
 function input(over: Partial<IclInput> = {}): IclInput {
   return {

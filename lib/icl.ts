@@ -34,6 +34,14 @@ export const EARNED_INCOME_DEDUCTION = [
   { upTo: Infinity, base: 14_750_000, rate: 0.02, from: 100_000_000 },
 ] as const;
 
+/**
+ * 근로소득공제 한도 (소득세법 제47조 제1항 단서).
+ * 총급여 362,500,000원에서 공제액이 2,000만원에 닿고 그 위로는 고정된다.
+ * ⚠️ 급여노트 `salary-note/lib/salary.ts`·세금노트 `tax-note/lib/tax-core.ts`의
+ * `earnedIncomeDeduction()`에도 같은 한도가 있다. 셋이 같은 값이어야 한다.
+ */
+export const EARNED_INCOME_DEDUCTION_CAP = 20_000_000;
+
 /** 총급여 → 근로소득공제액. */
 export function earnedIncomeDeduction(grossSalary: number): number {
   const gross = Math.max(0, grossSalary);
@@ -42,7 +50,7 @@ export function earnedIncomeDeduction(grossSalary: number): number {
     EARNED_INCOME_DEDUCTION[EARNED_INCOME_DEDUCTION.length - 1];
   const deduction = tier.base + (gross - tier.from) * tier.rate;
   // 공제액은 총급여를 넘을 수 없다(총급여 500만원 이하에서 70% 적용 시 자동 충족).
-  return Math.min(gross, Math.round(deduction));
+  return Math.min(gross, EARNED_INCOME_DEDUCTION_CAP, Math.round(deduction));
 }
 
 /** 총급여 → 근로소득금액(= 소득금액). */
@@ -62,9 +70,14 @@ export function salaryFromIncome(income: number): number {
     // 이 구간의 총급여 G에 대해 소득금액 = G − base − (G − from) × rate
     //                                = G(1 − rate) − base + from × rate
     const gross = (target + tier.base - tier.from * tier.rate) / (1 - tier.rate);
-    if (gross <= tier.upTo) return Math.round(gross);
+    if (gross <= tier.upTo) {
+      // 공제 한도에 걸리는 구간이면 1차식이 성립하지 않는다.
+      // 한도 위에서는 공제액이 고정이라 소득금액 = 총급여 − 한도다.
+      if (earnedIncomeDeduction(gross) >= EARNED_INCOME_DEDUCTION_CAP) break;
+      return Math.round(gross);
+    }
   }
-  return Math.round(target);
+  return Math.round(target + EARNED_INCOME_DEDUCTION_CAP);
 }
 
 export interface IclInput {
