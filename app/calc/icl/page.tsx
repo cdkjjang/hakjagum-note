@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import CalcGuides from "@/components/CalcGuides";
+import NextStep from "@/components/NextStep";
 import RelatedTools from "@/components/RelatedTools";
 import Link from "next/link";
 import IclCalculator from "@/components/IclCalculator";
@@ -76,6 +77,8 @@ export default function IclPage() {
       </p>
 
       <IclCalculator />
+
+      <NextStep calc="/calc/icl" />
 
       <AdSlot slot="icl-below-tool" />
 

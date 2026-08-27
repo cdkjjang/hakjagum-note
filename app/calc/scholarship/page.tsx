@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import CalcGuides from "@/components/CalcGuides";
+import NextStep from "@/components/NextStep";
 import RelatedTools from "@/components/RelatedTools";
 import Link from "next/link";
 import ScholarshipCalculator from "@/components/ScholarshipCalculator";
@@ -76,6 +77,8 @@ export default function ScholarshipPage() {
       </p>
 
       <ScholarshipCalculator />
+
+      <NextStep calc="/calc/scholarship" />
 
       <AdSlot slot="scholarship-below-tool" />
 

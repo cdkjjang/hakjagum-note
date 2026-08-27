@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import CalcGuides from "@/components/CalcGuides";
+import NextStep from "@/components/NextStep";
 import RelatedTools from "@/components/RelatedTools";
 import Link from "next/link";
 import BracketCalculator from "@/components/BracketCalculator";
@@ -76,6 +77,8 @@ export default function BracketPage() {
       </p>
 
       <BracketCalculator />
+
+      <NextStep calc="/calc/bracket" />
 
       <AdSlot slot="bracket-below-tool" />
 

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import CalcGuides from "@/components/CalcGuides";
+import NextStep from "@/components/NextStep";
 import RelatedTools from "@/components/RelatedTools";
 import Link from "next/link";
 import DeductionCalculator from "@/components/DeductionCalculator";
@@ -76,6 +77,8 @@ export default function DeductionPage() {
       </p>
 
       <DeductionCalculator />
+
+      <NextStep calc="/calc/deduction" />
 
       <AdSlot slot="deduction-below-tool" />
 
