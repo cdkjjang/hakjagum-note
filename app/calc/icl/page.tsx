@@ -190,7 +190,7 @@ export default function IclPage() {
       </section>
 
       <CalcNotes
-        updated="2026-08-20"
+        updated="2026-08-27"
         basis={[
           {
             law: "「취업 후 학자금 상환 특별법」 제18조 (의무상환액의 산정)",
