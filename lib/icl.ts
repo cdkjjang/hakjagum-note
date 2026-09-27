@@ -3,18 +3,27 @@
 // 이 계산기가 반드시 드러내야 하는 것: **기준은 연봉이 아니라 소득금액이다.**
 // "연 3천만원 벌면 갚는다"는 말이 흔한데, 상환기준소득 1,898만원은 총급여가 아니라
 // 근로소득공제를 뺀 뒤의 소득금액이다. 총급여로 환산하면 2,851만원이라 체감이 꽤 다르다.
-// 그리고 갚는 것은 초과분의 20%일 뿐이라, 기준을 갓 넘으면 연 상환액이 몇만원에 그친다.
+// 갚는 금액은 초과분의 20%(대학원 25%)지만, **최소부담 의무상환액 연 36만원**이 있다
+// (시행령 제10조 제2항). 기준을 1원만 넘어도 36만원이다.
+// ⚠️ 2026-09-27 정정: 예전에는 최소액 없이 20%만 계산해 "갓 넘으면 몇만원"이라고 안내했다.
 //
 // ⚠️ 갱신 대상
-//   · 상환기준소득 — 매년 국세청 고시(전년도 귀속 소득 기준). 2026년 1,898만원
-//   · 대출 금리 — 학기마다 교육부가 고시. 2026년 1학기 연 1.7%
+//   · 상환기준소득 — 매년 교육부장관 고시(법 제18조 제5항). 1,898만원은 **2025년 귀속** 소득
+//     기준으로, 2026년 4월 국세청이 통지한 분이다(총급여 환산 2,851만원).
+//   · 상환율(20·25%)·최소부담 의무상환액(36만원) — 시행령 제10조 개정 시
+//   · 대출 금리 — 학기마다 교육부가 고시. 2026년 1·2학기 연 1.7%
+//   이자 면제(법 제16조의2 — 기초·차상위·다자녀·저소득 구간, 군 복무)와 학기 단리
+//   이자 계산(제17조)은 반영하지 않았다. 소진 기간은 연 1회 복리 어림이다.
 //   값을 고치면 `icl.test.ts`의 리터럴 고정 테스트가 먼저 깨진다.
 
-/** 2026년 상환기준소득 — **소득금액** 기준. 총급여가 아니다. */
+/** 상환기준소득(2025년 귀속) — **소득금액** 기준. 총급여가 아니다. */
 export const THRESHOLD_INCOME = 18_980_000;
 
-/** 의무상환 비율. 학부는 초과분의 20%, 대학원은 25%. */
+/** 의무상환 비율(시행령 제10조 제1항). 학부는 초과분의 20%, 대학원은 25%. */
 export const REPAY_RATE = { undergraduate: 0.2, graduate: 0.25 } as const;
+
+/** 최소부담 의무상환액(시행령 제10조 제2항) — 연 36만원. 계산액이 이보다 적으면 이 금액을 낸다. */
+export const MIN_ANNUAL_REPAYMENT = 360_000;
 
 /** 2026년 1학기 학자금대출 금리 (연). */
 export const LOAN_RATE = 0.017;
@@ -102,6 +111,8 @@ export interface IclResult {
   rate: number;
   /** 연간 의무상환액 */
   annualRepayment: number;
+  /** 초과분 × 상환율이 36만원에 못 미쳐 최소부담액이 적용됐는지 */
+  minimumApplied: boolean;
   /** 월 환산 의무상환액 (원천공제되는 대략적인 금액) */
   monthlyRepayment: number;
   /** 소득금액 대비 의무상환액 비율(%) */
@@ -132,8 +143,10 @@ export function calculateIcl(input: IclInput): IclResult {
   const excess = Math.max(0, income - THRESHOLD_INCOME);
   const rate = REPAY_RATE[input.studentType];
   const liable = excess > 0;
-  // 의무상환액은 10원 미만을 절사한다.
-  const annualRepayment = Math.floor((excess * rate) / 10) * 10;
+  // 의무상환액은 10원 미만을 절사한다. 기준을 넘었다면 최소 36만원이다.
+  const calculated = Math.floor((excess * rate) / 10) * 10;
+  const annualRepayment = liable ? Math.max(calculated, MIN_ANNUAL_REPAYMENT) : 0;
+  const minimumApplied = liable && calculated < MIN_ANNUAL_REPAYMENT;
 
   const balance = Math.max(0, input.balance);
   let yearsToClear: number | null = null;
@@ -175,6 +188,7 @@ export function calculateIcl(input: IclInput): IclResult {
     excess,
     rate,
     annualRepayment,
+    minimumApplied,
     monthlyRepayment: Math.floor(annualRepayment / 12 / 10) * 10,
     burdenRatio: income > 0 ? (annualRepayment / income) * 100 : 0,
     thresholdSalary: THRESHOLD_SALARY,

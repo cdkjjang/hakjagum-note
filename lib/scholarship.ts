@@ -92,7 +92,8 @@ export const UNIT_MULTI_THIRD_NINTH = 2_000_000;
 /** 일반 성적 요건: 직전 학기 12학점 이상 + 100점 만점 80점(B학점) 이상. */
 export const MIN_CREDITS = 12;
 export const MIN_SCORE = 80;
-/** 기초·차상위·1~3구간은 C학점(70점) 경고제로 2회까지 구제된다. */
+/** 기초·차상위는 70점이 원래 기준이고, 1~3구간은 70~80점이어도 C학점 경고제로 2회까지 구제된다.
+ *  (한국장학재단 국가장학금 I유형 심사기준표) */
 export const WARNING_SCORE = 70;
 
 function checkGrade(
@@ -121,8 +122,11 @@ function checkGrade(
   const passed = creditsOk && scoreOk;
 
   let message: string;
-  if (passed && warningEligible && gradeScore < MIN_SCORE) {
-    message = `80점에는 못 미치지만 C학점 경고제 대상이라 지원받을 수 있습니다. 다만 경고는 재학 중 두 번까지만 쓸 수 있으니 다음 학기에는 80점을 넘기는 편이 안전합니다.`;
+  if (passed && welfare !== "none" && gradeScore < MIN_SCORE) {
+    // 기초·차상위는 70점이 원래 기준이다(횟수 제한 없음). 재단 심사기준표 기준.
+    message = "기초생활수급자·차상위계층은 직전 학기 70점 이상이 기준이라 지원받을 수 있습니다.";
+  } else if (passed && warningEligible && gradeScore < MIN_SCORE) {
+    message = `80점에는 못 미치지만 1~3구간이라 C학점 경고제로 지원받을 수 있습니다. 다만 경고는 두 번까지만 쓸 수 있으니 다음 학기에는 80점을 넘기는 편이 안전합니다.`;
   } else if (passed) {
     message = "성적 요건을 충족합니다.";
   } else if (!creditsOk) {

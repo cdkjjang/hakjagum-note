@@ -11,18 +11,18 @@ import { SITE_NAME, SITE_URL } from "@/lib/site";
 export const metadata: Metadata = {
   title: "학자금대출 상환액 계산기 — 연봉 얼마부터 갚나",
   description:
-    "취업 후 상환 학자금대출(ICL)은 소득이 상환기준소득을 넘은 해부터 초과분의 20%를 갚습니다. 2026년 기준소득 1,898만원(총급여 약 2,851만원)으로 의무상환액과 소진 기간을 계산합니다.",
+    "취업 후 상환 학자금대출(ICL)은 소득이 상환기준소득을 넘은 해부터 초과분의 20%(최소 연 36만원)를 갚습니다. 상환기준소득 1,898만원(총급여 약 2,851만원)으로 의무상환액과 소진 기간을 계산합니다.",
   alternates: { canonical: "/calc/icl" },
 };
 
 const faq = [
   {
     q: "연봉 얼마부터 갚나요?",
-    a: "2026년 상환기준소득은 소득금액 1,898만원입니다. 이것은 총급여가 아니라 근로소득공제를 뺀 뒤의 금액이라, 총급여로 환산하면 약 2,851만원입니다. 연봉이 이보다 적으면 갚을 의무가 없습니다.",
+    a: "2025년 귀속 소득(2026년에 통지된 분)의 상환기준소득은 소득금액 1,898만원입니다. 이것은 총급여가 아니라 근로소득공제를 뺀 뒤의 금액이라, 총급여로 환산하면 약 2,851만원입니다. 연봉이 이보다 적으면 갚을 의무가 없습니다.",
   },
   {
     q: "기준을 넘으면 전부 갚아야 하나요?",
-    a: "아닙니다. 초과분에 대해서만 학부는 20%, 대학원은 25%를 냅니다. 소득금액이 1,900만원이면 초과분 2만원의 20%인 4,000원이 그해 의무상환액입니다. 그래서 기준을 갓 넘긴 해에는 상환액이 아주 적습니다.",
+    a: "아닙니다. 초과분에 대해서만 학부는 20%, 대학원은 25%를 냅니다. 다만 이렇게 계산한 금액이 연 36만원에 못 미치면 36만원을 냅니다(최소부담 의무상환액). 소득금액이 1,900만원이면 초과분 2만원의 20%는 4,000원이지만 실제 의무상환액은 36만원입니다.",
   },
   {
     q: "실직하면 어떻게 되나요?",
@@ -98,9 +98,9 @@ export default function IclPage() {
           연봉이 이보다 적으면 갚을 의무가 없습니다.
         </p>
 
-        <h2 className="mt-8 text-xl font-bold">갚는 것은 초과분의 20%뿐입니다</h2>
+        <h2 className="mt-8 text-xl font-bold">갚는 것은 초과분의 20% — 다만 최소 36만원</h2>
         <p className="rounded-xl border border-border-soft bg-card p-4 font-mono text-sm">
-          의무상환액 = (소득금액 − 1,898만원) × 20% (대학원은 25%)
+          의무상환액 = max((소득금액 − 1,898만원) × 20%, 36만원) (대학원은 25%)
         </p>
         <div className="overflow-x-auto">
           <table className="mt-2 w-full min-w-[440px] border-collapse text-sm">
@@ -114,7 +114,7 @@ export default function IclPage() {
             </thead>
             <tbody>
               <tr className="border-b border-border-soft"><td className="py-2 pr-3">2,800만원</td><td className="py-2 pr-3">1,855만원</td><td className="py-2 pr-3">없음</td><td className="py-2">0원</td></tr>
-              <tr className="border-b border-border-soft"><td className="py-2 pr-3">2,900만원</td><td className="py-2 pr-3">1,940만원</td><td className="py-2 pr-3">42만원</td><td className="py-2">8만 4,000원</td></tr>
+              <tr className="border-b border-border-soft"><td className="py-2 pr-3">2,900만원</td><td className="py-2 pr-3">1,940만원</td><td className="py-2 pr-3">42만원</td><td className="py-2">36만원 (계산액 8만 4,000원 → 최소부담액)</td></tr>
               <tr className="border-b border-border-soft"><td className="py-2 pr-3">3,500만원</td><td className="py-2 pr-3">2,450만원</td><td className="py-2 pr-3">552만원</td><td className="py-2">110만 4,000원</td></tr>
               <tr className="border-b border-border-soft"><td className="py-2 pr-3">4,000만원</td><td className="py-2 pr-3">2,875만원</td><td className="py-2 pr-3">977만원</td><td className="py-2">195만 4,000원</td></tr>
               <tr><td className="py-2 pr-3">5,000만원</td><td className="py-2 pr-3">3,775만원</td><td className="py-2 pr-3">1,877만원</td><td className="py-2">375만 4,000원</td></tr>
@@ -122,9 +122,10 @@ export default function IclPage() {
           </table>
         </div>
         <p className="mt-3">
-          기준을 갓 넘긴 해에는 연 상환액이 <strong>몇만원에 그칩니다.</strong> 소득이
-          늘면 상환액도 함께 늘고, 실직해서 기준 아래로 내려가면 다시 멈춥니다. 그래서
-          취업 후 상환 대출은 연체가 잘 생기지 않습니다.
+          기준을 갓 넘긴 해에도 연 상환액은 <strong>최소 36만원</strong>입니다.
+          초과분 × 20%가 이보다 적으면 36만원을 냅니다(시행령 제10조 제2항). 흔히
+          &lsquo;갓 넘으면 몇만원&rsquo;이라고 알려져 있지만 그렇지 않습니다. 소득이
+          늘면 상환액도 함께 늘고, 실직해서 기준 아래로 내려가면 그해에는 멈춥니다.
         </p>
 
         <h2 className="mt-8 text-xl font-bold">
@@ -132,15 +133,21 @@ export default function IclPage() {
         </h2>
         <p>
           소득에 연동된다는 것은 &lsquo;갚을 능력이 없으면 안 갚아도 된다&rsquo;는
-          뜻이지 &lsquo;그동안 빚이 늘지 않는다&rsquo;는 뜻이 아닙니다. 2026년 1학기
+          뜻이지 &lsquo;그동안 빚이 늘지 않는다&rsquo;는 뜻이 아닙니다. 2026년 1·2학기
           금리는 <strong>연 1.7%</strong>이고, 재학 중에도 소득이 없는 기간에도 이자가
           붙습니다.
         </p>
         <p>
+          다만 <strong>기초생활수급자·차상위계층·다자녀 가구와 교육부가 고시한 저소득
+          구간</strong>은 졸업 전, 그리고 소득이 상환기준소득을 넘기 전까지의 이자가
+          면제되고, 현역병·사회복무요원 복무 기간 이자도 면제됩니다(법 제16조의2).
+        </p>
+        <p>
           의무상환액이 한 해 이자보다 적으면 <strong>원금이 오히려 늘어납니다.</strong>{" "}
-          잔액 2,000만원에 연 1.7% 이자는 34만원인데, 소득이 기준을 조금만 넘어 연
-          상환액이 8만원이라면 매년 26만원씩 잔액이 커집니다. 이 계산기가 그런
-          경우에 소진 기간을 숫자로 내놓지 않는 이유입니다.
+          잔액 2,000만원에 연 1.7% 이자는 34만원이라, 최소부담액 36만원만 내는
+          해에는 원금이 2만원밖에 줄지 않습니다. 잔액이 더 크면 36만원으로는 이자도
+          못 덮어 잔액이 커집니다. 이 계산기가 그런 경우에 소진 기간을 숫자로 내놓지
+          않는 이유입니다.
         </p>
         <p>
           여유가 생기면 <strong>자발적 상환</strong>으로 언제든 더 낼 수 있습니다.
@@ -162,7 +169,7 @@ export default function IclPage() {
               <tr className="border-b border-border-soft"><td className="py-2 pr-3">상환 시작</td><td className="py-2 pr-3">소득이 기준을 넘은 해부터</td><td className="py-2">거치기간이 끝나면</td></tr>
               <tr className="border-b border-border-soft"><td className="py-2 pr-3">상환액</td><td className="py-2 pr-3">소득에 따라 매년 달라짐</td><td className="py-2">정해진 원리금 고정</td></tr>
               <tr className="border-b border-border-soft"><td className="py-2 pr-3">소득이 없으면</td><td className="py-2 pr-3">상환 없음 (이자는 쌓임)</td><td className="py-2">그래도 갚아야 함</td></tr>
-              <tr className="border-b border-border-soft"><td className="py-2 pr-3">신청 자격</td><td className="py-2 pr-3">학자금 지원구간 등 요건 있음</td><td className="py-2">요건이 더 넓음</td></tr>
+              <tr className="border-b border-border-soft"><td className="py-2 pr-3">신청 자격</td><td className="py-2 pr-3">등록금 대출은 2026년부터 소득 요건 없음 · 생활비 대출은 학부 8구간·대학원 6구간 이하</td><td className="py-2">소득 요건 없음</td></tr>
               <tr><td className="py-2 pr-3">연체 위험</td><td className="py-2 pr-3">낮음</td><td className="py-2">있음</td></tr>
             </tbody>
           </table>
@@ -190,22 +197,22 @@ export default function IclPage() {
       </section>
 
       <CalcNotes
-        updated="2026-08-27"
+        updated="2026-09-27"
         basis={[
           {
-            law: "「취업 후 학자금 상환 특별법」 제18조 (의무상환액의 산정)",
+            law: "「취업 후 학자금 상환 특별법」 제18조 (대출원리금의 상환원칙)",
             detail:
-              "채무자의 연간 소득금액이 상환기준소득을 초과하는 경우, 그 초과금액에 상환율을 곱한 금액을 의무상환액으로 합니다.",
+              "연간 소득금액이 상환기준소득을 초과하면 그 초과금액에 상환율을 곱한 금액을 의무상환액으로 합니다. 그 금액이 최소부담의무상환액에 못 미치면 최소부담의무상환액을 냅니다. 상환기준소득은 교육부장관이 매년 고시합니다(제5항).",
           },
           {
-            law: "2026년 상환기준소득 — 소득금액 1,898만원",
+            law: "상환기준소득 — 소득금액 1,898만원 (2025년 귀속)",
             detail:
-              "총급여가 아니라 근로소득공제를 뺀 뒤의 금액입니다. 근로소득공제를 역산하면 총급여 약 2,851만원에 해당합니다. 매년 국세청이 고시하며 전년도 귀속 소득을 기준으로 판정합니다.",
+              "총급여가 아니라 근로소득공제를 뺀 뒤의 금액입니다. 근로소득공제를 역산하면 총급여 약 2,851만원에 해당합니다. 2025년 귀속 소득에 적용되어 2026년 4월 국세청이 통지한 기준입니다.",
           },
           {
-            law: "상환율 — 학부 20% · 대학원 25%",
+            law: "같은 법 시행령 제10조 — 상환율 20·25%, 최소 연 36만원",
             detail:
-              "상환기준소득 초과분에만 적용됩니다. 소득 전체에 곱하는 것이 아닙니다.",
+              "학부 대출은 초과분의 20%, 대학원 대출은 25%입니다. 계산한 금액이 연 36만원에 못 미치면 36만원을 냅니다.",
           },
           {
             law: "소득세법 제47조 (근로소득공제)",
@@ -213,12 +220,12 @@ export default function IclPage() {
               "총급여 500만원 이하 70%, 1,500만원 이하 350만원 + 초과분 40%, 4,500만원 이하 750만원 + 초과분 15%, 1억원 이하 1,200만원 + 초과분 5%, 1억원 초과 1,475만원 + 초과분 2%.",
           },
           {
-            law: "대출 금리 — 2026년 1학기 연 1.7%",
+            law: "대출 금리 — 2026년 1·2학기 연 1.7%",
             detail:
               "학기마다 교육부가 고시합니다. 중도상환수수료는 없어 자발적 상환으로 언제든 더 갚을 수 있습니다.",
           },
         ]}
-        note="근로소득만 있는 경우를 가정한 추정치입니다. 사업·이자·배당·연금소득이 함께 있으면 소득금액 산정이 달라집니다. 실제 의무상환액은 국세청이 전년도 소득을 확정한 뒤 통지하며, 원천공제·직접납부 등 납부 방식에 따라 시기가 달라집니다. 금융 자문이 아니며 확정 금액은 한국장학재단(1599-2000)에서 확인하세요."
+        note="근로소득만 있는 경우를 가정한 추정치입니다. 소진 기간은 매년 이자를 붙이는 방식으로 어림했으며, 법은 원금에 학기 단리로 이자를 매기므로(제17조) 실제와 조금 다를 수 있습니다. 이자 면제 대상(기초·차상위·다자녀·저소득 구간, 군 복무)은 반영하지 않았습니다. 사업·이자·배당·연금소득이 함께 있으면 소득금액 산정이 달라집니다. 실제 의무상환액은 국세청이 전년도 소득을 확정한 뒤 통지하며, 원천공제·직접납부 등 납부 방식에 따라 시기가 달라집니다. 금융 자문이 아니며 확정 금액은 한국장학재단(1599-2000)에서 확인하세요."
         examples={[
           {
             title: "총급여 4,000만원 · 학부 대출",
@@ -241,8 +248,9 @@ export default function IclPage() {
               "소득금액 = 1,940만원",
               "초과분 = 42만원",
               "42만원 × 20% = 8만 4,000원",
+              "36만원에 못 미치므로 최소부담 의무상환액 적용",
             ],
-            result: "연 8만 4,000원 — 잔액 2,000만원의 이자(34만원)보다 적습니다",
+            result: "연 36만원 — 잔액 2,000만원이면 이자(34만원)를 겨우 넘깁니다",
           },
           {
             title: "총급여 4,000만원 · 잔액 2,000만원",

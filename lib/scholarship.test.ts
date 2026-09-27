@@ -192,11 +192,14 @@ describe("성적 요건", () => {
     expect(r.annualAmount).toBe(0);
   });
 
-  it("기초·차상위는 구간과 무관하게 경고제 대상이다", () => {
+  // 재단 심사기준표 — 기초·차상위는 70점이 원래 기준이고 경고 횟수 제한이 없다.
+  it("기초·차상위는 70점이 기준이다 — 경고제(2회)와 다르다", () => {
     const r = estimateScholarship(
       input({ bracket: household(INCOME_8), welfare: "basic", gradeScore: 72 }),
     );
-    expect(r.grade.warningEligible).toBe(true);
+    expect(r.grade.requiredScore).toBe(70);
+    expect(r.grade.passed).toBe(true);
+    expect(r.grade.message).not.toContain("두 번");
     expect(r.annualAmount).toBe(8_000_000);
   });
 

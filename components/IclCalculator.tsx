@@ -55,7 +55,7 @@ export default function IclCalculator() {
         label="대출 종류"
         options={[
           { value: "undergraduate", label: "학부", hint: "초과분 20%" },
-          { value: "graduate", label: "대학원", hint: "초과분 25%" },
+          { value: "graduate", label: "대학원 (학부 대출과 함께 있어도)", hint: "초과분 25%" },
         ]}
         value={studentType}
         onChange={setStudentType}
@@ -108,7 +108,10 @@ export default function IclCalculator() {
             <dd>{formatWon(r.excess)}</dd>
           </div>
           <div className="flex justify-between gap-4 border-t border-border-soft pt-2 font-bold">
-            <dt>× {Math.round(r.rate * 100)}%</dt>
+            <dt>
+              × {Math.round(r.rate * 100)}%
+              {r.minimumApplied && " → 최소부담액"}
+            </dt>
             <dd>{formatWon(r.annualRepayment)}</dd>
           </div>
         </dl>
@@ -127,16 +130,15 @@ export default function IclCalculator() {
           </p>
         </div>
 
-        {r.liable && r.burdenRatio < 3 && (
+        {r.minimumApplied && (
           <div className="mt-4 rounded-xl border border-border-soft p-4 text-[15px] leading-relaxed">
-            <p className="font-bold">
-              갚는 건 소득 전체가 아니라 초과분의{" "}
-              {Math.round(r.rate * 100)}%뿐입니다
-            </p>
+            <p className="font-bold">기준을 넘으면 최소 연 36만원입니다</p>
             <p className="mt-1.5 text-muted">
-              기준을 갓 넘긴 해에는 연 상환액이 몇만원에 그치기도 합니다. 소득이
-              늘면 상환액도 함께 늘고, 실직해서 기준 아래로 내려가면 다시 멈춥니다.
-              그래서 취업 후 상환 대출은 연체가 잘 생기지 않습니다.
+              초과분 × {Math.round(r.rate * 100)}%는{" "}
+              {formatWon(Math.floor((r.excess * r.rate) / 10) * 10)}이지만, 법이 정한{" "}
+              <strong>최소부담 의무상환액 연 36만원</strong>보다 적어 36만원을 냅니다
+              (시행령 제10조 제2항). 기준을 1원만 넘어도 마찬가지입니다. 실직해서 기준
+              아래로 내려가면 그해에는 의무상환이 없습니다.
             </p>
           </div>
         )}
@@ -182,9 +184,10 @@ export default function IclCalculator() {
       </ResultCard>
 
       <p className="mt-5 text-sm leading-relaxed text-muted">
-        2026년 상환기준소득과 학자금대출 금리(연{" "}
-        {(LOAN_RATE * 100).toFixed(1)}%)를 적용한 추정치입니다. 상환기준소득은
-        매년, 금리는 학기마다 바뀝니다. 실제 의무상환액은 국세청이 전년도 소득을
+        상환기준소득(2025년 귀속분), 최소부담 의무상환액 연 36만원, 학자금대출
+        금리(연 {(LOAN_RATE * 100).toFixed(1)}%)를 적용한 추정치입니다. 상환기준소득은
+        매년, 금리는 학기마다 바뀝니다. 이자 면제 대상(기초·차상위·다자녀·저소득
+        구간, 군 복무)은 반영하지 않았습니다. 실제 의무상환액은 국세청이 전년도 소득을
         확정한 뒤 통지하며, 근로소득 외 사업·이자·배당소득이 있으면 계산이
         달라집니다. 확정 금액은 한국장학재단(1599-2000)에서 확인하세요.
       </p>

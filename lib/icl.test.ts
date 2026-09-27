@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   EARNED_INCOME_DEDUCTION_CAP,
   LOAN_RATE,
+  MIN_ANNUAL_REPAYMENT,
   REPAY_RATE,
   THRESHOLD_INCOME,
   THRESHOLD_SALARY,
@@ -53,6 +54,10 @@ describe("고시값 고정 (2026년)", () => {
   it("상환율은 학부 20% · 대학원 25%", () => {
     expect(REPAY_RATE.undergraduate).toBe(0.2);
     expect(REPAY_RATE.graduate).toBe(0.25);
+  });
+
+  it("최소부담 의무상환액은 연 36만원 (시행령 제10조 제2항)", () => {
+    expect(MIN_ANNUAL_REPAYMENT).toBe(360_000);
   });
 
   it("대출 금리는 연 1.7%", () => {
@@ -108,11 +113,23 @@ describe("의무상환액", () => {
     expect(r.annualRepayment).toBe(2_442_500);
   });
 
-  // 자주 오해하는 지점 — 기준을 갓 넘으면 상환액이 아주 적다.
-  it("기준을 조금만 넘으면 연 상환액이 몇만원에 그친다", () => {
+  // 2026-09-27 정정 — 예전에는 "갓 넘으면 몇만원"이라고 했다. 최소부담액이 있다.
+  it("기준을 조금만 넘어도 연 36만원 — 초과분 × 20%가 적으면 최소부담액", () => {
     const r = calculateIcl(input({ amount: 29_000_000 }));
     expect(r.liable).toBe(true);
-    expect(r.annualRepayment).toBeLessThan(100_000);
+    expect(r.excess).toBe(420_000); // 42만원 × 20% = 8만 4천원이지만
+    expect(r.annualRepayment).toBe(360_000);
+    expect(r.minimumApplied).toBe(true);
+  });
+
+  it("초과분 × 20%가 36만원을 넘으면 계산액 그대로", () => {
+    const r = calculateIcl(input());
+    expect(r.minimumApplied).toBe(false);
+  });
+
+  it("기준을 1원만 넘어도 36만원", () => {
+    const r = calculateIcl(input({ amount: THRESHOLD_INCOME + 1, inputMode: "income" }));
+    expect(r.annualRepayment).toBe(360_000);
   });
 
   it("기준 이하면 상환 의무가 없다", () => {
@@ -143,7 +160,7 @@ describe("의무상환액", () => {
 describe("해설 표 숫자 고정", () => {
   const rows = [
     { salary: 28_000_000, income: 18_550_000, repay: 0 },
-    { salary: 29_000_000, income: 19_400_000, repay: 84_000 },
+    { salary: 29_000_000, income: 19_400_000, repay: 360_000 }, // 계산액 8만 4천원 → 최소부담 36만원
     { salary: 35_000_000, income: 24_500_000, repay: 1_104_000 },
     { salary: 40_000_000, income: 28_750_000, repay: 1_954_000 },
     { salary: 50_000_000, income: 37_750_000, repay: 3_754_000 },
@@ -180,7 +197,7 @@ describe("잔액 소진 기간", () => {
   });
 
   it("상환액이 이자보다 적으면 기간을 추정하지 않는다", () => {
-    // 연 상환액이 매우 적은데 잔액이 크면 이자가 상환액을 넘어선다
+    // 연 36만원인데 잔액이 3억이면 이자(510만원)가 상환액을 넘어선다
     const r = calculateIcl(input({ amount: 29_000_000, balance: 300_000_000 }));
     expect(r.yearsToClear).toBeNull();
   });
