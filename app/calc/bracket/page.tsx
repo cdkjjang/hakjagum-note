@@ -9,7 +9,7 @@ import CalcNotes from "@/components/CalcNotes";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "학자금 지원구간 계산기 — 우리 집은 몇 구간인가",
+  title: "학자금 지원구간 계산기 — 소득인정액으로 몇 구간인지 계산",
   description:
     "국가장학금·근로장학금이 전부 이 구간 하나로 갈립니다. 2026년 기준 중위소득과 재산의 소득환산 산식으로 소득인정액과 예상 구간을 계산하고, 경계까지 얼마나 남았는지 보여줍니다.",
   alternates: { canonical: "/calc/bracket" },

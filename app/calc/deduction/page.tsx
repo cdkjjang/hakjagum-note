@@ -9,9 +9,9 @@ import CalcNotes from "@/components/CalcNotes";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "교육비 세액공제 계산기 — 학자금대출 갚은 만큼 돌려받기",
+  title: "학자금대출 연말정산 — 상환액 교육비 세액공제 계산기",
   description:
-    "학자금대출 원리금 상환액은 한도 없이 전액이 본인 교육비 세액공제 대상입니다. 등록금·자녀 교육비까지 넣어 실제로 줄어드는 세금을 계산합니다. 2026년 기준.",
+    "학자금대출을 갚은 해의 연말정산에서 원리금 상환액이 한도 없이 교육비 세액공제(15%) 대상이 됩니다. 소득공제가 아니라 세액공제입니다. 등록금·자녀 교육비까지 넣어 실제로 줄어드는 세금을 계산합니다. 2026년 기준.",
   alternates: { canonical: "/calc/deduction" },
 };
 
