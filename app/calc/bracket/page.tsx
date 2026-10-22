@@ -7,6 +7,7 @@ import BracketCalculator from "@/components/BracketCalculator";
 import AdSlot from "@/components/AdSlot";
 import CalcNotes from "@/components/CalcNotes";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { BRACKET_MEDIAN, BRACKET_RATIOS, bracketCeiling, bracketGroup2027 } from "@/lib/bracket";
 
 export const metadata: Metadata = {
   title: "학자금 지원구간 계산기 — 소득인정액으로 몇 구간인지 계산",
@@ -151,8 +152,10 @@ export default function BracketPage() {
 
         <h2 className="mt-8 text-xl font-bold">2026년 구간 경계</h2>
         <p>
-          소득인정액이 가구 규모별 기준 중위소득의 몇 %인지로 구간이 정해집니다. 아래는
-          4인 가구(기준 중위소득 6,494,738원) 기준입니다.
+          소득인정액이 기준 중위소득의 몇 %인지로 구간이 정해집니다. 경계는{" "}
+          <strong>가구원 수와 관계없이 4인 가구 기준 중위소득</strong>(
+          {BRACKET_MEDIAN.toLocaleString("ko-KR")}원) 하나로 계산하며, 한국장학재단이 공시하는
+          경곗값과 같습니다. 가족이 많은 집은 경계가 아니라 형제·자매 공제로 반영됩니다.
         </p>
         <div className="overflow-x-auto">
           <table className="mt-2 w-full min-w-[420px] border-collapse text-sm">
@@ -160,23 +163,34 @@ export default function BracketPage() {
               <tr className="border-b-2 border-border-soft text-left">
                 <th className="py-2 pr-3 font-bold">구간</th>
                 <th className="py-2 pr-3 font-bold">중위소득 대비</th>
-                <th className="py-2 font-bold">4인 가구 소득인정액 상한</th>
+                <th className="py-2 pr-3 font-bold">월 소득인정액 상한</th>
+                <th className="py-2 font-bold">2027년 1학기~</th>
               </tr>
             </thead>
             <tbody>
-              <tr className="border-b border-border-soft"><td className="py-2 pr-3">1구간</td><td className="py-2 pr-3">30%</td><td className="py-2">약 194만원</td></tr>
-              <tr className="border-b border-border-soft"><td className="py-2 pr-3">2구간</td><td className="py-2 pr-3">50%</td><td className="py-2">약 325만원</td></tr>
-              <tr className="border-b border-border-soft"><td className="py-2 pr-3">3구간</td><td className="py-2 pr-3">70%</td><td className="py-2">약 455만원</td></tr>
-              <tr className="border-b border-border-soft"><td className="py-2 pr-3">4구간</td><td className="py-2 pr-3">90%</td><td className="py-2">약 585만원</td></tr>
-              <tr className="border-b border-border-soft"><td className="py-2 pr-3">5구간</td><td className="py-2 pr-3">100%</td><td className="py-2">약 649만원</td></tr>
-              <tr className="border-b border-border-soft"><td className="py-2 pr-3">6구간</td><td className="py-2 pr-3">130%</td><td className="py-2">약 844만원</td></tr>
-              <tr className="border-b border-border-soft"><td className="py-2 pr-3">7구간</td><td className="py-2 pr-3">150%</td><td className="py-2">약 974만원</td></tr>
-              <tr className="border-b border-border-soft"><td className="py-2 pr-3">8구간</td><td className="py-2 pr-3">200%</td><td className="py-2">약 1,299만원</td></tr>
-              <tr className="border-b border-border-soft"><td className="py-2 pr-3">9구간</td><td className="py-2 pr-3">300%</td><td className="py-2">약 1,948만원</td></tr>
-              <tr><td className="py-2 pr-3">10구간</td><td className="py-2 pr-3">300% 초과</td><td className="py-2">국가장학금 대상 아님</td></tr>
+              {BRACKET_RATIOS.map((ratio, i) => (
+                <tr key={ratio} className="border-b border-border-soft">
+                  <td className="py-2 pr-3">{i + 1}구간</td>
+                  <td className="py-2 pr-3">{ratio}%</td>
+                  <td className="py-2 pr-3">
+                    {bracketCeiling(i + 1).toLocaleString("ko-KR")}원 이하
+                  </td>
+                  <td className="py-2">{bracketGroup2027(i + 1)} 구간</td>
+                </tr>
+              ))}
+              <tr>
+                <td className="py-2 pr-3">10구간</td>
+                <td className="py-2 pr-3">300% 초과</td>
+                <td className="py-2 pr-3">국가장학금 대상 아님</td>
+                <td className="py-2">{bracketGroup2027(10)} 구간</td>
+              </tr>
             </tbody>
           </table>
         </div>
+        <p>
+          2027년 1학기부터 재단은 10개 구간을 &lsquo;가~마&rsquo; 5개로 묶어 부릅니다. 1~3구간이 가,
+          4~6구간이 나, 7~8구간이 다, 9구간이 라, 10구간이 마이고, 구간별 지원 금액 기준은 그대로입니다.
+        </p>
 
         <h2 className="mt-8 text-xl font-bold">경계 하나로 100만원이 갈립니다</h2>
         <p>
@@ -208,7 +222,7 @@ export default function BracketPage() {
       </section>
 
       <CalcNotes
-        updated="2026-08-20"
+        updated="2026-10-22"
         basis={[
           {
             law: "보건복지부 고시 제2025-135호 (2026년 기준 중위소득)",

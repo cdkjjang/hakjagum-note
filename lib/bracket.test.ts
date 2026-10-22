@@ -3,18 +3,20 @@ import {
   BASIC_PROPERTY_DEDUCTION,
   BRACKET_RATIOS,
   CONVERSION_RATE,
+  BRACKET_MEDIAN,
   MEDIAN_INCOME,
   SIBLING_DEDUCTION_PER,
+  bracketCeiling,
+  bracketFromIncome,
   bracketFromRatio,
+  bracketGroup2027,
   judgeBracket,
-  medianIncome,
   type BracketInput,
 } from "./bracket";
 
 // 재산·부채가 없는 기본형. 각 테스트에서 필요한 값만 덮어쓴다.
 function base(over: Partial<BracketInput> = {}): BracketInput {
   return {
-    householdSize: 4,
     monthlyIncome: 3_000_000,
     generalProperty: 0,
     financialProperty: 0,
@@ -62,14 +64,40 @@ describe("고시값 고정 (2026년)", () => {
   });
 });
 
-describe("기준 중위소득", () => {
-  it("7인 이상은 6인 값에 가산액을 더한다", () => {
-    expect(medianIncome(7)).toBe(8_555_952 + 999_233);
-    expect(medianIncome(8)).toBe(8_555_952 + 999_233 * 2);
+describe("구간 경계의 기준 중위소득", () => {
+  // 재단 경곗값 공시는 4인 가구 기준 한 줄뿐이고, 가족수에 영향을 받지 않는다.
+  it("가구원 수와 관계없이 4인 가구 값 하나를 쓴다", () => {
+    expect(BRACKET_MEDIAN).toBe(6_494_738);
+    expect(judgeBracket(base()).medianIncome).toBe(6_494_738);
   });
 
-  it("가구원 수가 1 미만이면 1인 가구로 본다", () => {
-    expect(medianIncome(0)).toBe(MEDIAN_INCOME[1]);
+  // 재단 「학자금 지원구간 경곗값」 2026년 표와 원 단위까지 맞춘다.
+  it("경곗값이 재단 공시표와 같다", () => {
+    const table = [1_948_421, 3_247_369, 4_546_317, 5_845_264, 6_494_738, 8_443_159, 9_742_107, 12_989_476, 19_484_214];
+    BRACKET_RATIOS.forEach((ratio, i) => {
+      expect(bracketCeiling(i + 1)).toBe(table[i]);
+    });
+  });
+
+  it("경곗값과 같은 금액은 그 구간, 1원 넘으면 다음 구간", () => {
+    expect(bracketFromIncome(4_546_317)).toBe(3);
+    expect(bracketFromIncome(4_546_318)).toBe(4);
+    expect(bracketFromIncome(19_484_214)).toBe(9);
+    expect(bracketFromIncome(19_484_215)).toBe(10);
+  });
+
+  it("가족 규모는 형제·자매 공제로만 반영된다", () => {
+    const r = judgeBracket(base({ monthlyIncome: 2_000_000, siblings: 4 }));
+    expect(r.siblingDeduction).toBe(800_000);
+    expect(r.bracket).toBe(1);
+  });
+});
+
+describe("2027년 1학기 구간 개편 (가~마)", () => {
+  it("1~3 가, 4~6 나, 7~8 다, 9 라, 10 마", () => {
+    expect([1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(bracketGroup2027).join("")).toBe(
+      "가가가나나나다다라마",
+    );
   });
 });
 

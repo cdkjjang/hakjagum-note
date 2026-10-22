@@ -8,6 +8,7 @@ import {
   type ChildOrder,
   type WelfareType,
 } from "@/lib/scholarship";
+import { bracketGroup2027 } from "@/lib/bracket";
 import { formatWon } from "@/lib/date";
 
 function won(v: string): number {
@@ -16,7 +17,6 @@ function won(v: string): number {
 }
 
 export default function ScholarshipCalculator() {
-  const [size, setSize] = useState("4");
   const [income, setIncome] = useState("300");
   const [property, setProperty] = useState("0");
   const [tuition, setTuition] = useState("400");
@@ -29,7 +29,6 @@ export default function ScholarshipCalculator() {
   const isFreshman = freshman === "yes";
   const r = estimateScholarship({
     bracket: {
-      householdSize: Number(size),
       monthlyIncome: won(income),
       generalProperty: won(property),
       financialProperty: 0,
@@ -47,15 +46,6 @@ export default function ScholarshipCalculator() {
 
   return (
     <div className="rounded-2xl border border-border-soft bg-card p-5 shadow-sm">
-      <OptionGroup
-        label="가구원 수 (본인 포함)"
-        options={["1", "2", "3", "4", "5", "6", "7"].map((v) => ({
-          value: v,
-          label: v === "7" ? "7명 이상" : `${v}명`,
-        }))}
-        value={size}
-        onChange={setSize}
-      />
       <MoneyField
         label="가구의 월 소득"
         hint="부모의 근로·사업·연금소득 합계 (세전)"
@@ -143,7 +133,7 @@ export default function ScholarshipCalculator() {
               {formatWon(r.annualAmount)}
             </p>
             <p className="mt-1 text-[15px] text-muted">
-              {r.bracket}구간 · 학기당 {formatWon(r.semesterAmount)}
+              {r.bracket}구간(2027년 1학기부터 &lsquo;{bracketGroup2027(r.bracket)}&rsquo; 구간) · 학기당{" "}{formatWon(r.semesterAmount)}
             </p>
           </>
         )}

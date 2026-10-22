@@ -26,8 +26,35 @@ export const MEDIAN_INCOME: Record<number, number> = {
   6: 8_555_952,
 };
 
-/** 7인 이상 가구는 1인 늘 때마다 6인과 5인의 차액을 더한다(복지부 고시 방식). */
-export const EXTRA_PER_MEMBER = MEDIAN_INCOME[6] - MEDIAN_INCOME[5]; // 999,233
+/**
+ * 구간 경계에 쓰는 기준 중위소득 — **가구원 수와 관계없이 4인 가구 값 하나**다.
+ *
+ * 2026-10-22 정정. 이전에는 가구원 수별 중위소득으로 경계를 나눠, 1~3인 가구는 구간이 실제보다
+ * 높게(불리하게), 5인 이상은 낮게 나왔다. 근거:
+ *   · 재단 「학자금 지원구간 경곗값」 공시 — 표가 4인 가구 기준 한 줄뿐이다
+ *     (1구간 1,948,421원 = 6,494,738 × 30%). kosaf.go.kr tuition04_09_07
+ *   · 공공데이터포털 재단 파일 설명 — "학자금지원구간 경곗값은 연단위로 산정하고,
+ *     가족수에 영향을 받지 않아 … '가족수' 항목(컬럼)은 제공 정보에서 제외함" (data.go.kr 15070453)
+ *   · 재단 산정절차 — 소득인정액 = 소득평가액 + 재산의 소득환산액 − 형제·자매 수에 따른 공제액.
+ *     가족 규모는 경계가 아니라 이 공제로만 반영된다.
+ * 그래서 계산기는 가구원 수를 묻지 않는다. MEDIAN_INCOME 표는 고시값 고정 테스트와 가이드 인용을
+ * 위해 남겨 둔다.
+ */
+export const BRACKET_MEDIAN_HOUSEHOLD = 4;
+export const BRACKET_MEDIAN = MEDIAN_INCOME[BRACKET_MEDIAN_HOUSEHOLD];
+
+/**
+ * 2027년 1학기부터 10구간을 '가~마' 5구간으로 묶는다. 지원 금액 기준은 그대로다
+ * (재단 「2027년 학자금 지원구간 개편」 — 2026년 사전 공표 후 2027년 1학기부터 적용).
+ * 1~3구간 → 가, 4~6 → 나, 7~8 → 다, 9 → 라, 10 → 마(미지원).
+ */
+export function bracketGroup2027(bracket: number): "가" | "나" | "다" | "라" | "마" {
+  if (bracket <= 3) return "가";
+  if (bracket <= 6) return "나";
+  if (bracket <= 8) return "다";
+  if (bracket === 9) return "라";
+  return "마";
+}
 
 /** 기본재산액 공제 — 학자금은 전국 단일이다. 기초생활보장처럼 지역별로 다르지 않다. */
 export const BASIC_PROPERTY_DEDUCTION = 69_000_000;
@@ -54,8 +81,7 @@ export const SIBLING_DEDUCTION_BASE = 2;
 export const BRACKET_RATIOS = [30, 50, 70, 90, 100, 130, 150, 200, 300] as const;
 
 export interface BracketInput {
-  /** 가구원 수 (본인 포함) */
-  householdSize: number;
+
   /** 가구의 월 소득평가액 — 근로·사업·연금소득 등의 합계 */
   monthlyIncome: number;
   /** 일반재산: 주택·건물·토지·전월세보증금 등 */
@@ -83,7 +109,7 @@ export interface BracketResult {
   propertyConverted: number;
   /** 적용된 형제·자매 공제액 */
   siblingDeduction: number;
-  /** 이 가구 규모의 기준 중위소득(월) */
+  /** 구간 경계에 쓴 기준 중위소득(월) — 4인 가구 값 */
   medianIncome: number;
   /** 소득인정액이 기준 중위소득의 몇 %인지 */
   ratio: number;
@@ -102,12 +128,6 @@ export interface BracketResult {
   };
 }
 
-/** 가구원 수에 해당하는 기준 중위소득(월). 7인 이상은 가산액으로 계산한다. */
-export function medianIncome(householdSize: number): number {
-  const size = Math.max(1, Math.floor(householdSize));
-  if (size <= 6) return MEDIAN_INCOME[size];
-  return MEDIAN_INCOME[6] + EXTRA_PER_MEMBER * (size - 6);
-}
 
 /** 소득인정액이 기준 중위소득의 몇 %인지로 구간을 정한다. 300% 초과는 10구간. */
 export function bracketFromRatio(ratio: number): number {
@@ -118,13 +138,23 @@ export function bracketFromRatio(ratio: number): number {
 }
 
 /** 구간의 소득인정액 상한(월). 10구간은 상한이 없으므로 Infinity. */
-export function bracketCeiling(bracket: number, householdSize: number): number {
+// 재단 경곗값은 원 단위로 반올림한 값이다(70%: 4,546,316.6 → 4,546,317원 이하가 3구간).
+// 비율로 비교하면 경계 1원에서 구간이 어긋나므로 반올림한 금액으로 비교한다.
+export function bracketCeiling(bracket: number): number {
   if (bracket >= 10) return Infinity;
-  return (medianIncome(householdSize) * BRACKET_RATIOS[bracket - 1]) / 100;
+  return Math.round((BRACKET_MEDIAN * BRACKET_RATIOS[bracket - 1]) / 100);
+}
+
+/** 월 소득인정액으로 구간을 정한다. 재단 경곗값(반올림한 원 단위) 이하이면 그 구간이다. */
+export function bracketFromIncome(recognizedIncome: number): number {
+  for (let b = 1; b <= BRACKET_RATIOS.length; b += 1) {
+    if (recognizedIncome <= bracketCeiling(b)) return b;
+  }
+  return 10;
 }
 
 export function judgeBracket(input: BracketInput): BracketResult {
-  const median = medianIncome(input.householdSize);
+  const median = BRACKET_MEDIAN;
 
   // 부채는 일반재산에서 먼저 빼고, 남으면 금융재산에서 뺀다(재단 공시).
   // 기본재산액도 같은 순서로 차감한다. 자동차에서는 차감하지 않는다 —
@@ -160,14 +190,14 @@ export function judgeBracket(input: BracketInput): BracketResult {
   );
 
   const ratio = (recognizedIncome / median) * 100;
-  const bracket = bracketFromRatio(ratio);
+  const bracket = bracketFromIncome(recognizedIncome);
 
-  const ceiling = bracketCeiling(bracket, input.householdSize);
+  const ceiling = bracketCeiling(bracket);
   const roomToUpperBracket =
     ceiling === Infinity ? 0 : Math.max(0, Math.floor(ceiling - recognizedIncome));
 
   const lowerCeiling =
-    bracket <= 1 ? 0 : bracketCeiling(bracket - 1, input.householdSize);
+    bracket <= 1 ? 0 : bracketCeiling(bracket - 1);
   const gapToLowerBracket =
     bracket <= 1 ? 0 : Math.max(0, Math.ceil(recognizedIncome - lowerCeiling));
 

@@ -14,7 +14,6 @@ import {
 /** 월소득만으로 구간을 만든다. 4인 가구·재산 없음 기준. */
 function household(monthlyIncome: number): BracketInput {
   return {
-    householdSize: 4,
     monthlyIncome,
     generalProperty: 0,
     financialProperty: 0,

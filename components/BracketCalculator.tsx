@@ -6,6 +6,7 @@ import OptionGroup from "./OptionGroup";
 import {
   BASIC_PROPERTY_DEDUCTION,
   BRACKET_RATIOS,
+  bracketGroup2027,
   judgeBracket,
 } from "@/lib/bracket";
 import { formatKoreanWon, formatWon } from "@/lib/date";
@@ -16,7 +17,6 @@ function won(v: string): number {
 }
 
 export default function BracketCalculator() {
-  const [size, setSize] = useState("4");
   const [income, setIncome] = useState("300");
   const [general, setGeneral] = useState("0");
   const [financial, setFinancial] = useState("0");
@@ -26,7 +26,6 @@ export default function BracketCalculator() {
   const [unmarried, setUnmarried] = useState<"yes" | "no">("yes");
 
   const r = judgeBracket({
-    householdSize: Number(size),
     monthlyIncome: won(income),
     generalProperty: won(general),
     financialProperty: won(financial),
@@ -41,18 +40,10 @@ export default function BracketCalculator() {
 
   return (
     <div className="rounded-2xl border border-border-soft bg-card p-5 shadow-sm">
-      <OptionGroup
-        label="가구원 수 (본인 포함)"
-        options={["1", "2", "3", "4", "5", "6", "7"].map((v) => ({
-          value: v,
-          label: v === "7" ? "7명 이상" : `${v}명`,
-        }))}
-        value={size}
-        onChange={setSize}
-      />
-      <p className="-mt-3 mb-5 text-sm text-muted">
-        미혼 학생은 <strong>본인·부모</strong>가 기준입니다. 형제·자매는 가구원에
-        넣지 않되 아래 &lsquo;형제·자매 수&rsquo;에서 공제로 반영됩니다.
+      <p className="mb-5 text-sm leading-relaxed text-muted">
+        미혼 학생은 <strong>본인·부모</strong>의 소득·재산으로 판정합니다. 구간 경계는
+        가구원 수와 관계없이 <strong>4인 가구 기준 중위소득</strong> 하나로 정해지고,
+        가족 규모는 아래 &lsquo;형제·자매 수&rsquo; 공제로만 반영됩니다.
       </p>
 
       <MoneyField
@@ -120,6 +111,10 @@ export default function BracketCalculator() {
               소득인정액 {formatWon(r.recognizedIncome)} · 기준 중위소득의{" "}
               {r.ratio.toFixed(1)}%
             </p>
+            <p className="mt-1 text-[15px] text-muted">
+              2027년 1학기부터는 <strong>&lsquo;{bracketGroup2027(r.bracket)}&rsquo; 구간</strong>
+              으로 부릅니다(지원 금액 기준은 같습니다).
+            </p>
           </>
         ) : (
           <p className="text-[15px] leading-relaxed text-muted">
@@ -150,7 +145,7 @@ export default function BracketCalculator() {
           </div>
           <div className="flex justify-between gap-4">
             <dt className="text-muted">
-              {size === "7" ? "7인" : `${size}인`} 가구 기준 중위소득
+              기준 중위소득 (4인 가구)
             </dt>
             <dd>{formatWon(r.medianIncome)}</dd>
           </div>
