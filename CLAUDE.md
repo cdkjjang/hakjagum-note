@@ -1,7 +1,7 @@
 # CLAUDE.md — 학자금노트 (hakjagum-note)
 
 등록금에서 **실제로 돈이 갈리는 지점** — 학자금 지원구간·국가장학금 지원액·
-학자금대출 상환액·교육비 세액공제를 계산기 4종과 가이드 10편으로 정리하는
+학자금대출 상환액·교육비 세액공제를 계산기 4종과 가이드 13편으로 정리하는
 애드센스 수익형 미니사이트. 생활반장 노트 시리즈의 18번째 노트.
 
 > 경계 주의: **세금노트**가 연말정산 전반을, **급여노트**가 재직 중 급여를,
@@ -14,13 +14,13 @@
 
 - Next.js 16.2.10 (App Router) + TypeScript + Tailwind CSS 4. DB·로그인·결제·API 없음, 전부 정적.
 - 개발 서버: 워크스페이스 `.claude/launch.json`의 `hakjagum-note-dev` (포트 4800)
-- 빌드: `npm run build` / 테스트: `npm test` (vitest 81개)
+- 빌드: `npm run build` / 테스트: `npm test` (vitest 98개)
 - Node는 포터블: 명령 앞에 `$env:Path = "E:\클로드\tools\node;$env:Path"` 필요
 - **빌드 성공 판정은 `$LASTEXITCODE -eq 0`으로 한다.** `✓ Compiled`는 타입 체크 전에 나온다.
 - **PowerShell `Set-Content -Encoding utf8`은 BOM을 붙인다.** `package.json`에 BOM이
   들어가면 빌드가 통째로 깨진다. `[System.IO.File]::WriteAllText($f, $t, (New-Object System.Text.UTF8Encoding $false))`를 쓸 것.
 - 배포: `git push origin main` (Vercel 자동 배포)만 사용. 절차는 `DEPLOY.md`
-- 도메인: hakjagum.lifebanjang.com (**아직 배포 전**)
+- 도메인: hakjagum.lifebanjang.com (2026-08-21 배포)
 - 테마: 인디고(`--accent: #4c4192`) — 기존 18개 노트와 겹치지 않음
 
 ## 구조
@@ -35,7 +35,7 @@
     소득금액 ↔ 총급여를 환산한다. `salaryFromIncome()`이 구간별 1차식의 닫힌 해.
   - `lib/deduction.ts` 교육비 세액공제 — 본인은 한도 없음, 부양가족은 한도.
     교복 50만·체험학습 30만의 항목별 한도가 300만 한도 **안에서** 먼저 걸린다.
-- 가이드 10편: `lib/guides-1.ts`(지원구간·국가장학금 5편) · `lib/guides-2.ts`(대출·세액공제 5편)
+- 가이드 13편: `lib/guides-*.ts` (처음 10편은 `guides-1.ts` 지원구간·국가장학금, `guides-2.ts` 대출·세액공제)
 - 계산기 페이지: `app/calc/{bracket,scholarship,icl,deduction}/page.tsx`
 
 ## 이 노트가 반드시 설명해야 하는 것
@@ -147,8 +147,7 @@
 
 - 브라우저 스크린샷은 이 환경에서 타임아웃 가능 — get_page_text/read_page/javascript_tool로 검증.
 - PowerShell에서 `app/guide/[slug]` 경로는 `-LiteralPath` 사용. `&&` 불가.
-- `components/FamilyLinks.tsx`의 SITES 배열은 전 사이트 공통 정본.
-  **배포 전까지 다른 노트에 hakjagum 항목을 넣지 말 것**(게이팅).
+- `components/FamilyLinks.tsx`는 2026-08-25부터 **허브 한 곳만** 가리킨다(형제 노트 18곳을 전부 링크하던 구조는 링크 네트워크로 읽힐 수 있어 걷었다 — 파일 머리말 참조). 새 노트를 만들어도 이 파일은 고칠 필요가 없고, 허브 `lib/notes.ts`에만 등록한다.
 - **가이드를 추가·수정하면** 허브에서 `npm run gen:note-guides`를 돌리고 허브도 함께
   배포해야 `lifebanjang.com/articles/hakjagum` 목록에 반영된다.
 - 입력한 소득·재산·급여는 브라우저에서만 처리하고 서버로 보내지 않는다.
