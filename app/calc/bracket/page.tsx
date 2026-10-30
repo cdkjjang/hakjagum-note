@@ -79,9 +79,9 @@ export default function BracketPage() {
 
       <BracketCalculator />
 
-      <NextStep calc="/calc/bracket" />
-
       <AdSlot slot="bracket-below-tool" />
+
+      <NextStep calc="/calc/bracket" />
 
       <section className="mt-10 space-y-4 text-[15px] leading-relaxed">
         <h2 className="text-xl font-bold">구간은 연봉으로 정해지지 않습니다</h2>

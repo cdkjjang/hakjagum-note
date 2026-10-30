@@ -78,9 +78,9 @@ export default function ScholarshipPage() {
 
       <ScholarshipCalculator />
 
-      <NextStep calc="/calc/scholarship" />
-
       <AdSlot slot="scholarship-below-tool" />
+
+      <NextStep calc="/calc/scholarship" />
 
       <section className="mt-10 space-y-4 text-[15px] leading-relaxed">
         <h2 className="text-xl font-bold">

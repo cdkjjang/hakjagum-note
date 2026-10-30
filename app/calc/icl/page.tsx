@@ -78,9 +78,9 @@ export default function IclPage() {
 
       <IclCalculator />
 
-      <NextStep calc="/calc/icl" />
-
       <AdSlot slot="icl-below-tool" />
+
+      <NextStep calc="/calc/icl" />
 
       <section className="mt-10 space-y-4 text-[15px] leading-relaxed">
         <h2 className="text-xl font-bold">기준은 연봉이 아니라 소득금액입니다</h2>

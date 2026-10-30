@@ -78,9 +78,9 @@ export default function DeductionPage() {
 
       <DeductionCalculator />
 
-      <NextStep calc="/calc/deduction" />
-
       <AdSlot slot="deduction-below-tool" />
+
+      <NextStep calc="/calc/deduction" />
 
       <section className="mt-10 space-y-4 text-[15px] leading-relaxed">
         <h2 className="text-xl font-bold">
